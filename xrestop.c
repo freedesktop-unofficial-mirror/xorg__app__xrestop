@@ -493,18 +493,21 @@ xrestop_display(XResTopApp *app)
   char pretty_total_bytes[16]  = { 0 };
   char pretty_pid[16]          = { 0 };
 
-  clear();
+  if (!app->want_batch_mode)
+    {
+      clear();
 
-  mvprintw(0, 0, "xrestop - Display: %s:%i", 
-	   app->dpy_name ? app->dpy_name : "localhost", app->screen);
+      mvprintw(0, 0, "xrestop - Display: %s:%i", 
+	       app->dpy_name ? app->dpy_name : "localhost", app->screen);
 
-  mvprintw(1, 0, "          Monitoring %i clients. XErrors: %i", app->n_clients, app->n_xerrors);
+      mvprintw(1, 0, "          Monitoring %i clients. XErrors: %i", app->n_clients, app->n_xerrors);
 
-  attron(A_BOLD|A_REVERSE);
+      attron(A_BOLD|A_REVERSE);
 
-  mvprintw(3, 0, "res-base Wins  GCs Fnts Pxms Other Pxm mem    Other   Total   PID Identifier    ");
-
-  attroff(A_BOLD|A_REVERSE);
+      mvprintw(3, 0, "res-base Wins  GCs Fnts Pxms Other Pxm mem    Other   Total   PID Identifier    ");
+      
+      attroff(A_BOLD|A_REVERSE);
+    }
 
   for (i=0; i<app->n_clients; i++)
     {
@@ -517,33 +520,75 @@ xrestop_display(XResTopApp *app)
 	snprintf(pretty_pid, 16, "%5d", app->clients[i]->pid);
       else
 	snprintf(pretty_pid, 16, "  ?  ");
-	  
-      mvprintw(i+4, 0, "%.7x  %4d %4d %4d %4d %4d   %7s %7s %7s %5s %s", 
 
-	       app->clients[i]->resource_base, 
-	       app->clients[i]->n_windows, 
-	       app->clients[i]->n_gcs, 
-	       app->clients[i]->n_fonts,
-	       app->clients[i]->n_pixmaps,  
 
-	       app->clients[i]->n_pictures 
-	       + app->clients[i]->n_glyphsets
-	       + app->clients[i]->n_colormaps
-	       + app->clients[i]->n_passive_grabs
-	       + app->clients[i]->n_cursors
-	       + app->clients[i]->n_other,
-	       
-	       pretty_pixmap_bytes,
-	       pretty_other_bytes,
-	       pretty_total_bytes,
-	       
-	       pretty_pid,	   
-	       app->clients[i]->identifier
-	       
-	       );
+      if (!app->want_batch_mode)
+	{
+	  mvprintw(i+4, 0, "%.7x  %4d %4d %4d %4d %4d   %7s %7s %7s %5s %s", 
+		   
+		   app->clients[i]->resource_base, 
+		   app->clients[i]->n_windows, 
+		   app->clients[i]->n_gcs, 
+		   app->clients[i]->n_fonts,
+		   app->clients[i]->n_pixmaps,  
+		   
+		   app->clients[i]->n_pictures 
+		   + app->clients[i]->n_glyphsets
+		   + app->clients[i]->n_colormaps
+		   + app->clients[i]->n_passive_grabs
+		   + app->clients[i]->n_cursors
+		   + app->clients[i]->n_other,
+		   
+		   pretty_pixmap_bytes,
+		   pretty_other_bytes,
+		   pretty_total_bytes,
+		   
+		   pretty_pid,	   
+		   app->clients[i]->identifier
+		   
+		   );
+	}
+      else
+	{
+	  printf("%i - %s ( PID:%s ):\n"
+		 "\tres_base      : ox%lx\n"
+		 "\tres_mask      : ox%lx\n"
+		 "\twindows       : %d\n"
+		 "\tGCs           : %d\n"
+		 "\tfonts         : %d\n"
+		 "\tpixmaps       : %d\n"
+		 "\tpictures      : %d\n"
+		 "\tglyphsets     : %d\n"
+		 "\tcolormaps     : %d\n"
+		 "\tpassive grabs : %d\n"
+		 "\tcursors       : %d\n"
+		 "\tunknowns      : %d\n"
+		 "\tpixmap bytes  : %ld\n"
+		 "\tother bytes   : ~%ld\n"
+		 "\ttotal bytes   : ~%ld\n",
+		 i, 
+		 app->clients[i]->identifier,
+		 pretty_pid,
+		 app->clients[i]->resource_base, 
+		 app->clients[i]->resource_mask, 
+		 app->clients[i]->n_windows, 
+		 app->clients[i]->n_gcs, 
+		 app->clients[i]->n_fonts,
+		 app->clients[i]->n_pixmaps,  
+		 app->clients[i]->n_pictures,
+		 app->clients[i]->n_glyphsets,
+		 app->clients[i]->n_colormaps,
+		 app->clients[i]->n_passive_grabs,
+		 app->clients[i]->n_cursors,
+		 app->clients[i]->n_other, 
+		 app->clients[i]->pixmap_bytes,
+		 app->clients[i]->other_bytes,
+		 app->clients[i]->pixmap_bytes + app->clients[i]->other_bytes);
+	}
     }
 
-  refresh();
+  if (!app->want_batch_mode)
+    refresh();
 }
 
 int 
@@ -584,8 +629,7 @@ main(int argc, char **argv)
     }
     if (!strcmp ("-b", argv[i]) || !strcmp ("--batch", argv[i])) {
       app->want_batch_mode = True;
-      fprintf(stderr, "%s: batch feature not yet implemented.\n", argv[0]);
-      exit(1);
+      continue;
     }
     if (!strcmp ("-t", argv[i]) || !strcmp ("--delay-time", argv[i])) {
       if (++i>=argc) usage (argv[0]);
@@ -626,7 +670,8 @@ main(int argc, char **argv)
 
   /* Curses stuff */
 
-  initscr();
+  if (!app->want_batch_mode) 
+    initscr();
 
   for (;;)
    {
