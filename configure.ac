@@ -20,28 +20,51 @@ if test $have_libx11pc = yes; then
    PKG_CHECK_MODULES(XLIBS, x11 xres xext)
 else
 dnl **** Check for xlibs 'non pc' way ****
-
 AC_PATH_XTRA
 
 ALL_X_LIBS="$X_LIBS -lX11"
 
-found_xres=no
-AC_CHECK_LIB(XRes, XResQueryClients,
-               [AC_CHECK_HEADER(X11/extensions/XRes.h,
-                                XRES_LIBS=-lXRes found_xres=yes,,
-				[#include <X11/Xlib.h>])],
-               , -lXRes -lXext $ALL_X_LIBS)
+found_xres_lib=no
+AC_CHECK_LIB(XRes, XResQueryClients, XRES_LIBS=-lXRes found_xres_lib=yes,,
+	-lXext $ALL_X_LIBS)
 
-if test "x$found_xres" = "xno"; then
-   AC_MSG_ERROR([Cannot find XRes extension])
+if test "x$found_xres_lib" = "xno"; then
+    # Try again, overriding defaults for certain platforms
+    case `uname -sr` in
+      	"SunOS 5"*)
+	    # Solaris ships libXres in /usr/openwin/sfw/lib
+	    save_LDFLAGS=$LDFLAGS
+	    SOL_XRES_LDFLAGS="-L/usr/openwin/sfw/lib -R/usr/openwin/sfw/lib"
+	    LDFLAGS="$LDFLAGS $SOL_XRES_LDFLAGS"
+	    AC_CHECK_LIB(XRes, XResQueryClientResources, 
+		found_xres_lib=yes XRES_LIBS="$SOL_XRES_LDFLAGS -lXRes",
+		,-lXext $ALL_X_LIBS)
+	    LDFLAGS="$save_LDFLAGS"
+	;;
+    esac
+fi
+
+
+if test "x$found_xres_lib" = "xno"; then
+   AC_MSG_ERROR([Cannot find XRes extension library])
    exit 1
 fi
 
-XLIBS_LIBS="-lXRes -lXext $ALL_X_LIBS"
+found_xres=no
+
+AC_CHECK_HEADER(X11/extensions/XRes.h,found_xres=yes,,[#include <X11/Xlib.h>])
+
+if test "x$found_xres" = "xno"; then
+   AC_MSG_ERROR([Cannot find XRes extension headers])
+   exit 1
+fi
+
+XLIBS_LIBS="$XRES_LIBS -lXext $ALL_X_LIBS"
    	
 fi
 
-AC_CHECK_LIB([ncurses], [initscr])
+# check for ncurses, fall back to curses
+AC_CHECK_LIB([ncurses], [initscr],,AC_CHECK_LIB([curses], [initscr]))
 
 if test "x$GCC" = "xyes"; then
         GCC_WARNINGS="-Wall -fno-strict-aliasing"

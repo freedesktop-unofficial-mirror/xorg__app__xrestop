@@ -44,14 +44,20 @@
 #include <X11/Xatom.h>
 #include <X11/extensions/XRes.h>
 
+#ifdef HAVE_LIBNCURSES
 #include <ncurses.h>
+#else
+#include <curses.h>
+#endif
 
 #define DEBUG 1
 
+#ifdef __GNUC__
 #ifdef DEBUG
 #define DBG(txt, args... ) fprintf(stderr, txt , ##args )
 #else
 #define DBG(txt, args... ) /* nothing */
+#endif
 #endif
 
 enum {
@@ -164,7 +170,7 @@ pid_t
 window_get_pid(XResTopApp *app, Window win)
 {
   Atom  type;
-  long  bytes_after, n_items;
+  unsigned long  bytes_after, n_items;
   long *data = NULL;
   pid_t result = -1;
   int   format;
@@ -190,9 +196,8 @@ window_get_utf8_name(XResTopApp *app, Window win)
 {
   Atom type;
   int format;
-  long bytes_after;
+  unsigned long  bytes_after, n_items;
   unsigned char *str = NULL;
-  long n_items;
   int result;
 
   result =  XGetWindowProperty (app->dpy, win, app->atoms[ATOM_NET_WM_NAME],

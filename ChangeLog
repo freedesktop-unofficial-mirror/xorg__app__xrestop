@@ -1,3 +1,14 @@
+2004-01-02  Matthew Allum  <mallum@handhelds.com>
+
+	Applied patch from Alan Coopersmith; 
+
+	* configure.ac:
+	check for xres header and lib. Check Solaris X bits. Check for
+	curses if no ncurses
+ 
+	* xrestop.c: (window_get_pid), (window_get_utf8_name):
+	Solaris cc tweaks. Compile with curses if no ncurses. 
+
 2003-12-24  Matthew Allum  <mallum@handhelds.com> 
 
 	* doc/Makefile.am:
