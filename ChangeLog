@@ -1,3 +1,8 @@
+2004-02-07  Matthew Allum,,,  <mallum@handhelds.org>
+
+	* doc/xrestop.1:
+	Applied man page patch from Moray Allan
+
 2004-01-02  Matthew Allum  <mallum@handhelds.com>
 
 	Applied patch from Alan Coopersmith; 
