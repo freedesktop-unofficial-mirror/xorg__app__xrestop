@@ -64,4 +64,4 @@ AC_TYPE_PID_T
  
 AC_CHECK_FUNCS([memset strdup])
 
-AC_OUTPUT([Makefile])
+AC_OUTPUT([Makefile doc/Makefile])

@@ -1,0 +1,38 @@
+.TH "xrestop" 1
+.SH NAME
+xrestop \- A X11 client server resource usage monitor
+.SH SYNOPSIS
+.B xrestop
+-help
+.br
+.B xrestop
+[ \fB-display\fP display ] [ \fB--batch\fP ] [ \fB--delay-time\fP seconds ]
+.SH DESCRIPTION
+Xrestop uses the XRes extension to provide 'top' like statistics of 
+each connected X11 client server side resource usage. It is intended 
+as a developer tool to aid more efficient server resource usage and 
+debug server side resource leakage.
+.SH OPTIONS
+.TP
+\fB\-\-help\fP
+Show usage.
+.TP
+\fB\-\-display, -d\fP <display>
+Specify X11 display to monitor.
+.TP
+\fB\-\--delay-time, -dt\fP <seconds>
+Time in seconds between taking samples. Default is 2 seconds. 
+.TP
+\fB\-\--batch, -b\fP
+Run in batch mode. Slightly more detailed infomation is streamed to 
+stdout rather than the usual curses interface. This mode is intended
+for debugging a single client with something like 
+.br
+'xrestop -b | grep -A 14 appname
+.br
+.SH "SEE ALSO"
+X(7) TOP(1)
+.SH BUGS
+XRes extension is very new and may not be 100% accurate. 
+.SH AUTHOR
+<mallum@handhelds.org>

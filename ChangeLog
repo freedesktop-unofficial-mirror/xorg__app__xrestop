@@ -1,5 +1,14 @@
 2003-12-20  Matthew Allum  <mallum@handhelds.org>
 
+	* Makefile.am:
+	* configure.ac:
+	* doc/Makefile.am:
+	* doc/xrestop.1:
+
+	Added a simple man page. 
+
+2003-12-20  Matthew Allum  <mallum@handhelds.org>
+
 	* xrestop.c: (xrestop_display), (xrestop_sort_compare):
 	Add totals to display. Change sort order to total bytes rather
 	than just pixmap bytes. 
