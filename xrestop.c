@@ -117,7 +117,7 @@ typedef struct XResTopApp
   Display    *dpy;
   char       *dpy_name;
   int         screen;
-  Window      win_root;
+  Window      win_root, win_dummy;
   Atom        atoms[ATOM_COUNT];
 
   XResTopClient *clients[MAX_CLIENTS];
@@ -374,6 +374,14 @@ xrestop_client_get_info(XResTopApp *app, XResTopClient *client)
    * XXX This uses a bucket load of X traffic - improve !
    */
 
+  /* Check for our own connection */
+  if ( (client->resource_base & ~client->resource_mask) 
+          == (app->win_dummy & ~client->resource_mask) )
+    {
+      client->identifier = strdup("xrestop");
+      return;
+    }
+
   found = recurse_win_tree(app, client, app->win_root);
 
   if (found)
@@ -518,7 +526,7 @@ xrestop_display(XResTopApp *app)
 	       app->dpy_name ? app->dpy_name : "localhost", app->screen);
 
       mvprintw(1, 0, "          Monitoring %i clients. XErrors: %i", app->n_clients, app->n_xerrors);
-      mvprintw(2, 0, "          Pixmaps: %8s total, Other %8s total, All %8s total", 
+      mvprintw(2, 0, "          Pixmaps: %8s total, Other: %8s total, All: %8s total", 
 	       pretty_pixmap_bytes,
 	       pretty_other_bytes,
 	       pretty_total_bytes);
@@ -526,7 +534,7 @@ xrestop_display(XResTopApp *app)
 
       attron(A_BOLD|A_REVERSE);
 
-      mvprintw(4, 0, "res-base Wins  GCs Fnts Pxms Other Pxm mem    Other   Total   PID Identifier    ");
+      mvprintw(4, 0, "res-base Wins  GCs Fnts Pxms Misc   Pxm mem  Other   Total   PID Identifier    ");
       
       attroff(A_BOLD|A_REVERSE);
     }
@@ -619,7 +627,7 @@ xrestop_sort_compare(const void *a, const void *b)
   XResTopClient *c1 = *(XResTopClient **)a;
   XResTopClient *c2 = *(XResTopClient **)b;
 
-  if ((c1->pixmap_bytes + c1->other_bytes) > (c2->pixmap_bytes + c1->other_bytes))
+  if ((c1->pixmap_bytes + c1->other_bytes) > (c2->pixmap_bytes + c2->other_bytes))
     return -1;
 
   return 1;
@@ -689,6 +697,10 @@ main(int argc, char **argv)
   }
 
   app->n_clients = 0;
+
+  /* Create our own never mapped window so we can figure out this connection */
+  app->win_dummy = XCreateSimpleWindow(app->dpy, app->win_root, 
+				       0, 0, 16, 16, 0, None, None); 
 
   /* Curses stuff */
 

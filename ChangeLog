@@ -1,3 +1,11 @@
+2003-12-21  Matthew Allum  <mallum@handhelds.com>
+
+	* xrestop.c: (xrestop_client_get_info), (xrestop_display),
+	(xrestop_sort_compare), (main):
+	Fix broken sort.
+	Identify self.
+	Tweak readability.
+
 2003-12-20  Matthew Allum  <mallum@handhelds.org>
 
 	* Makefile.am:
