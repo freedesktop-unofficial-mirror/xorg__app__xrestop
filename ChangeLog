@@ -1,3 +1,8 @@
+2004-08-14  mallum,,,  <mallum@handhelds.org>
+
+	* configure.ac:
+	Bump up version to 0.3
+
 2004-02-07  Matthew Allum,,,  <mallum@handhelds.org>
 
 	* doc/xrestop.1:
