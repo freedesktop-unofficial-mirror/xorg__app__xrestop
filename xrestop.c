@@ -66,6 +66,8 @@ enum {
   ATOM_CURSOR,
   ATOM_NET_CLIENT_LIST,
   ATOM_NET_WM_PID,
+  ATOM_NET_WM_NAME,
+  ATOM_UTF8_STRING,
   ATOM_COUNT
 };
 
@@ -81,7 +83,9 @@ static char *AtomNames[] =
     "PASSIVE GRAB",
     "CURSOR",
     "_NET_CLIENT_LIST",
-    "_NET_WM_PID"
+    "_NET_WM_PID",
+    "_NET_WM_NAME",
+    "UTF8_STRING"
   };
 
 
@@ -106,7 +110,7 @@ typedef struct XResTopClient
 
 } XResTopClient;
 
-#define MAX_CLIENTS 1024 	/* XXX find out max connections per server */
+#define MAX_CLIENTS 1024  /* XXX find out max connections per server */
 
 typedef struct XResTopApp 
 {
@@ -180,6 +184,40 @@ window_get_pid(XResTopApp *app, Window win)
 
   return result;
 }
+
+unsigned char*
+window_get_utf8_name(XResTopApp *app, Window win)
+{
+  Atom type;
+  int format;
+  long bytes_after;
+  unsigned char *str = NULL;
+  long n_items;
+  int result;
+
+  result =  XGetWindowProperty (app->dpy, win, app->atoms[ATOM_NET_WM_NAME],
+				0, 1024L,
+				False, app->atoms[ATOM_UTF8_STRING],
+				&type, &format, &n_items,
+				&bytes_after, (unsigned char **)&str);
+
+  if (result != Success || str == NULL)
+    {
+      if (str) XFree (str);
+      return NULL;
+    }
+
+  if (type != app->atoms[ATOM_UTF8_STRING] || format != 8 || n_items == 0)
+    {
+      XFree (str);
+      return NULL;
+    }
+
+  /* XXX should probably utf8_validate this  */
+
+  return str;
+}
+
 
 void
 nice_bytes(char *target, int target_size, unsigned long bytes)
@@ -260,14 +298,17 @@ check_win_for_info(XResTopApp *app, XResTopClient *client, Window win)
     {
       trap_errors();
 
-      if (XGetWMName(app->dpy, win, &text_prop))
+      if ((client->identifier = window_get_utf8_name(app, win)) == NULL)
 	{
-	  client->identifier = strdup((char *) text_prop.value);
-	  XFree((char *) text_prop.value);
-	}
-      else
-	{
-	  XFetchName(app->dpy, win, (char **)&client->identifier);
+	  if (XGetWMName(app->dpy, win, &text_prop))
+	    {
+	      client->identifier = strdup((char *) text_prop.value);
+	      XFree((char *) text_prop.value);
+	    }
+	  else
+	    {
+	      XFetchName(app->dpy, win, (char **)&client->identifier);
+	    }
 	}
 
       if (untrap_errors())
@@ -390,7 +431,7 @@ xrestop_client_get_stats(XResTopApp *app, XResTopClient *client)
       else client->n_other += types[j].count;
     }
 
-  /* All approx currently  */
+  /* All approx currently - same as gnome system monitor */
    client->other_bytes += client->n_windows * 24;
    client->other_bytes += client->n_gcs * 24;
    client->other_bytes += client->n_pictures * 24;

@@ -1,3 +1,9 @@
 2003-12-18  Matthew Allum  <mallum@handhelds.org>
 
+	* xrestop.c: (window_get_utf8_name), (check_win_for_info),
+	(xrestop_client_get_stats):
+	Added support for grabbing utf8 window titles
+
+2003-12-18  Matthew Allum  <mallum@handhelds.org>
+
 	Initial import.
