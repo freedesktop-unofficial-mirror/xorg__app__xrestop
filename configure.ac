@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.53)
-AC_INIT([xrestop], 0.1, [mallum@handhelds.org])
+AC_INIT([xrestop], 0.2, [mallum@handhelds.org])
 AC_CONFIG_SRCDIR([xrestop.c])
 
 AM_INIT_AUTOMAKE()
@@ -64,4 +64,4 @@ AC_TYPE_PID_T
  
 AC_CHECK_FUNCS([memset strdup])
 
-AC_OUTPUT([Makefile doc/Makefile])
+AC_OUTPUT([Makefile doc/Makefile xrestop.spec])

@@ -1,3 +1,12 @@
+2003-12-24  Matthew Allum <mallum@handhelds.com>
+
+	* Makefile.am:
+	* configure.ac:
+	* doc/Makefile.am:
+	* xrestop.spec.in:
+	Added spec file from Ralph Loader.
+	Put the man page in EXTRA_DIST
+
 2003-12-21  Matthew Allum  <mallum@handhelds.com>
 
 	* xrestop.c: (xrestop_client_get_info), (xrestop_display),

@@ -8,3 +8,4 @@ xrestop_SOURCES = xrestop.c
 
 xrestop_LDADD = @XLIBS_LIBS@
 
+extra_DIST = xrestop.spec xrestop.spec.in
