@@ -495,16 +495,38 @@ xrestop_display(XResTopApp *app)
 
   if (!app->want_batch_mode)
     {
+      int total_pixmap_bytes = 0, total_other_bytes = 0;
+
+      /* Calculate totals - batch doesn't have this */
+
+      for (i=0; i<app->n_clients; i++)
+	{
+	  total_pixmap_bytes += app->clients[i]->pixmap_bytes;
+	  total_other_bytes += app->clients[i]->other_bytes;
+	}
+
+      nice_bytes(pretty_pixmap_bytes, 16, total_pixmap_bytes);
+      nice_bytes(pretty_other_bytes, 16, total_other_bytes);
+      nice_bytes(pretty_total_bytes, 16, 
+		 total_pixmap_bytes + total_other_bytes);
+
+      /* Curses rendering  */
+
       clear();
 
       mvprintw(0, 0, "xrestop - Display: %s:%i", 
 	       app->dpy_name ? app->dpy_name : "localhost", app->screen);
 
       mvprintw(1, 0, "          Monitoring %i clients. XErrors: %i", app->n_clients, app->n_xerrors);
+      mvprintw(2, 0, "          Pixmaps: %8s total, Other %8s total, All %8s total", 
+	       pretty_pixmap_bytes,
+	       pretty_other_bytes,
+	       pretty_total_bytes);
+
 
       attron(A_BOLD|A_REVERSE);
 
-      mvprintw(3, 0, "res-base Wins  GCs Fnts Pxms Other Pxm mem    Other   Total   PID Identifier    ");
+      mvprintw(4, 0, "res-base Wins  GCs Fnts Pxms Other Pxm mem    Other   Total   PID Identifier    ");
       
       attroff(A_BOLD|A_REVERSE);
     }
@@ -524,7 +546,7 @@ xrestop_display(XResTopApp *app)
 
       if (!app->want_batch_mode)
 	{
-	  mvprintw(i+4, 0, "%.7x  %4d %4d %4d %4d %4d   %7s %7s %7s %5s %s", 
+	  mvprintw(i+5, 0, "%.7x  %4d %4d %4d %4d %4d   %7s %7s %7s %5s %s", 
 		   
 		   app->clients[i]->resource_base, 
 		   app->clients[i]->n_windows, 
@@ -597,7 +619,7 @@ xrestop_sort_compare(const void *a, const void *b)
   XResTopClient *c1 = *(XResTopClient **)a;
   XResTopClient *c2 = *(XResTopClient **)b;
 
-  if (c1->pixmap_bytes > c2->pixmap_bytes)
+  if ((c1->pixmap_bytes + c1->other_bytes) > (c2->pixmap_bytes + c1->other_bytes))
     return -1;
 
   return 1;
