@@ -29,6 +29,10 @@ stdout rather than the usual curses interface. This mode is intended
 for debugging a single client with something like 
 .br
   xrestop \-b | grep \-A 14 appname
+.TP
+\fB\-\-max\-samples, \-m\fP <count>
+Specify number of times to gather and display results.
+Default is continuous, which can be set with 0 (zero).
 .br
 .SH "SEE ALSO"
 .BR X (7),

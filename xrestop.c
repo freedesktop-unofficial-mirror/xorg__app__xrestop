@@ -99,7 +99,7 @@ typedef struct XResTopClient
 {
   XID            resource_base, resource_mask;
   pid_t          pid;
-  unsigned char *identifier;
+  char          *identifier;
   unsigned long  pixmap_bytes;
   unsigned long  other_bytes;
 
@@ -128,8 +128,9 @@ typedef struct XResTopApp
 
   XResTopClient *clients[MAX_CLIENTS];
   int         n_clients;
-  
+
   Bool        want_batch_mode;
+  int         max_samples; 
   int         delay;
   int         n_xerrors;
 
@@ -191,13 +192,13 @@ window_get_pid(XResTopApp *app, Window win)
   return result;
 }
 
-unsigned char*
+char*
 window_get_utf8_name(XResTopApp *app, Window win)
 {
   Atom type;
   int format;
   unsigned long  bytes_after, n_items;
-  unsigned char *str = NULL;
+  char *str = NULL;
   int result;
 
   result =  XGetWindowProperty (app->dpy, win, app->atoms[ATOM_NET_WM_NAME],
@@ -254,7 +255,8 @@ usage(char *progname)
 	  "%s usage:\n"
 	  "  -display,     -d        specify X Display to monitor.\n"
 	  "  --delay-time, -t <int>  specify time in seconds between sampling.\n"
-	  "  --batch,      -b        run in batch mode.\n\n",
+	  "  --batch,      -b        run in batch mode.\n"
+	  "  --max-samples,-m <int>  Maximum overall readings to take.\n\n",
 	  progname);
 
   exit(1);
@@ -355,11 +357,10 @@ recurse_win_tree(XResTopApp *app, XResTopClient *client, Window win_top)
 
   for (i=0; i<nchildren; i++) 
     {
-      if (recurse_win_tree(app, client, children[i]))
-	{
-	  w = children[i];
-	  break;
-	}
+      w = recurse_win_tree(app, client, children[i]);
+
+      if (w != None)
+	break;
     }
 
   if (children) XFree ((char *)children);
@@ -656,25 +657,39 @@ main(int argc, char **argv)
 
   app->delay = 2;
 
-  for (i = 1; i < argc; i++) {
-    if (!strcmp ("-display", argv[i]) || !strcmp ("-d", argv[i])) {
-      if (++i>=argc) usage (argv[0]);
-      app->dpy_name = argv[i];
-      continue;
-    }
-    if (!strcmp ("-b", argv[i]) || !strcmp ("--batch", argv[i])) {
-      app->want_batch_mode = True;
-      continue;
-    }
-    if (!strcmp ("-t", argv[i]) || !strcmp ("--delay-time", argv[i])) {
-      if (++i>=argc) usage (argv[0]);
-      app->delay = atoi(argv[i]);
-      if (app->delay < 0) usage(argv[0]);
-      continue;
-    }
+  for (i = 1; i < argc; i++) 
+    {
+      if (!strcmp ("-display", argv[i]) || !strcmp ("-d", argv[i])) 
+	{
+	  if (++i>=argc) usage (argv[0]);
+	  app->dpy_name = argv[i];
+	  continue;
+	}
 
-    if (!strcmp("--help", argv[i]) || !strcmp("-h", argv[i])) {
-      usage(argv[0]);
+      if (!strcmp ("-b", argv[i]) || !strcmp ("--batch", argv[i])) 
+	{
+	  app->want_batch_mode = True;
+	  continue;
+	}
+
+      if (!strcmp ("-t", argv[i]) || !strcmp ("--delay-time", argv[i])) 
+	{
+	  if (++i>=argc) usage (argv[0]);
+	  app->delay = atoi(argv[i]);
+	  if (app->delay < 0) usage(argv[0]);
+	  continue;
+	}
+
+      if (!strcmp ("-m", argv[i]) || !strcmp ("--max-samples", argv[i])) 
+	{
+	  if (++i>=argc) usage (argv[0]);
+	  app->max_samples = atoi(argv[i]);
+	  if (app->max_samples < 0) usage(argv[0]);
+	  continue;
+	}
+
+      if (!strcmp("--help", argv[i]) || !strcmp("-h", argv[i])) {
+	usage(argv[0]);
     }
 
     usage(argv[0]);
@@ -707,17 +722,52 @@ main(int argc, char **argv)
   app->win_dummy = XCreateSimpleWindow(app->dpy, app->win_root, 
 				       0, 0, 16, 16, 0, None, None); 
 
-  /* Curses stuff */
 
   if (!app->want_batch_mode) 
-    initscr();
+    {
+      /* Curses init */
+      initscr();
+      cbreak();
+      noecho();
+    }
+
+  i = app->max_samples;
 
   for (;;)
    {
      xrestop_populate_client_data(app);
      xrestop_sort(app);
      xrestop_display(app);
-     sleep(app->delay);
+
+     if ((app->max_samples) && (--i < 1))
+       goto finish;
+
+     if (app->want_batch_mode) 
+       {
+	 sleep(app->delay);
+       }
+     else
+       {
+	 int delay;
+
+	 /* Curses Curses! Handle 'q' key to quit */
+	 for (delay = app->delay * 10; delay > 0; delay -= 255) 
+	   {
+	     if (delay > 255)
+	       halfdelay(255);
+	     else
+	       halfdelay(delay);
+      
+	     if (wgetch(stdscr) == 'q')
+	       goto finish;
+	   }
+       }
+
    }
+
+ finish:
+  endwin();
+  exit(0);
+
 }
 

@@ -1,3 +1,14 @@
+2006-02-27  Matthew Allum  <mallum@openedhand.com>
+
+        * doc/xrestop.1:
+        Add docs for --max-samples options
+        * xrestop.c: (window_get_utf8_name), (usage), (recurse_win_tree),
+        (main):
+        Fix gcc 4 compiler warnings. Minor source cleanups.
+        Fix missing PIDs due to window recursing bug ( John Tapsell )
+        Handle 'q' key to quit ( Moray Allan )
+        '--max-samples' option ( Jeremy C Reed )
+
 2004-08-14  mallum,,,  <mallum@handhelds.org>
 
 	* configure.ac:
