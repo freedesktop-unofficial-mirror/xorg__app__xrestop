@@ -2,7 +2,7 @@ SUBDIRS = doc
 
 AM_CFLAGS = @XLIBS_CFLAGS@
 
-bin_PROGRAMS=xrestop
+bin_PROGRAMS = xrestop
 
 xrestop_SOURCES = xrestop.c
 
