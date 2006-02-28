@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.53)
-AC_INIT([xrestop], 0.3, [mallum@handhelds.org])
+AC_INIT([xrestop], 0.4, [mallum@handhelds.org])
 AC_CONFIG_SRCDIR([xrestop.c])
 
 AM_INIT_AUTOMAKE()
