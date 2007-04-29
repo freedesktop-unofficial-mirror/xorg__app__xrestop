@@ -587,8 +587,8 @@ xrestop_display(XResTopApp *app)
       else
 	{
 	  printf("%i - %s ( PID:%s ):\n"
-		 "\tres_base      : ox%lx\n"
-		 "\tres_mask      : ox%lx\n"
+		 "\tres_base      : %#lx\n"
+		 "\tres_mask      : %#lx\n"
 		 "\twindows       : %d\n"
 		 "\tGCs           : %d\n"
 		 "\tfonts         : %d\n"
