@@ -10,7 +10,7 @@ xrestop_LDADD = @XLIBS_LIBS@
 
 extra_DIST = xrestop.spec xrestop.spec.in
 
-EXTRA_DIST += ChangeLog
+EXTRA_DIST = ChangeLog
 MAINTAINERCLEANFILES = ChangeLog
 
 .PHONY: ChangeLog
