@@ -167,7 +167,7 @@ untrap_errors(void)
 
 /* Misc util funcs */
 
-pid_t
+static pid_t
 window_get_pid(XResTopApp *app, Window win)
 {
   Atom  type;
@@ -192,7 +192,7 @@ window_get_pid(XResTopApp *app, Window win)
   return result;
 }
 
-char*
+static char*
 window_get_utf8_name(XResTopApp *app, Window win)
 {
   Atom type;
@@ -225,7 +225,7 @@ window_get_utf8_name(XResTopApp *app, Window win)
 }
 
 
-void
+static void
 nice_bytes(char *target, int target_size, unsigned long bytes)
 {
   char prefix = 'B';
@@ -248,7 +248,7 @@ nice_bytes(char *target, int target_size, unsigned long bytes)
   snprintf(target, target_size, "%li%c", value, prefix);
 }
 
-void 
+static void 
 usage(char *progname)
 {
   fprintf(stderr, 
@@ -265,7 +265,7 @@ usage(char *progname)
 
 /* Client struct stuff */
 
-XResTopClient*
+static XResTopClient*
 xrestop_client_new(XResTopApp *app)
 {
   XResTopClient *client = NULL;
@@ -278,7 +278,7 @@ xrestop_client_new(XResTopApp *app)
   return client;
 }
 
-void
+static void
 xrestop_client_free(XResTopClient *client)
 {
   if (client->identifier) XFree (client->identifier);
@@ -368,7 +368,7 @@ recurse_win_tree(XResTopApp *app, XResTopClient *client, Window win_top)
   return w;
 }
 
-void 
+static void 
 xrestop_client_get_info(XResTopApp *app, XResTopClient *client)  
 {
   Window found = None;
@@ -400,7 +400,7 @@ xrestop_client_get_info(XResTopApp *app, XResTopClient *client)
     }
 }
 
-void
+static void
 xrestop_client_get_stats(XResTopApp *app, XResTopClient *client)
 {
   int               j = 0;
@@ -462,7 +462,7 @@ xrestop_client_get_stats(XResTopApp *app, XResTopClient *client)
    return;
 }
 
-void
+static void
 xrestop_populate_client_data(XResTopApp *app)
 {
   int         i;
@@ -498,7 +498,7 @@ xrestop_populate_client_data(XResTopApp *app)
   if (clients) XFree(clients);
 }
 
-void
+static void
 xrestop_display(XResTopApp *app)
 {
   int  i;
@@ -627,7 +627,7 @@ xrestop_display(XResTopApp *app)
     refresh();
 }
 
-int 
+static int 
 xrestop_sort_compare(const void *a, const void *b)
 {
   XResTopClient *c1 = *(XResTopClient **)a;
@@ -640,7 +640,7 @@ xrestop_sort_compare(const void *a, const void *b)
 }
 
 
-void
+static void
 xrestop_sort(XResTopApp *app)
 {
   qsort((void *)app->clients, app->n_clients, sizeof(app->clients[0]), xrestop_sort_compare);

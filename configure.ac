@@ -7,6 +7,10 @@ AC_CONFIG_SRCDIR([xrestop.c])
 
 AM_INIT_AUTOMAKE()
 AM_MAINTAINER_MODE
+# Require xorg-macros: XORG_CWARNFLAGS, XORG_CHANGELOG
+m4_ifndef([XORG_MACROS_VERSION], [AC_FATAL([must install xorg-macros 1.2 or later before running autoconf/autogen])])
+XORG_MACROS_VERSION(1.2)
+XORG_CWARNFLAGS
 AM_CONFIG_HEADER([config.h])
 
 # Checks for programs.
@@ -66,11 +70,7 @@ fi
 # check for ncurses, fall back to curses
 AC_CHECK_LIB([ncurses], [initscr],,AC_CHECK_LIB([curses], [initscr]))
 
-if test "x$GCC" = "xyes"; then
-        GCC_WARNINGS="-Wall -fno-strict-aliasing"
-        XLIBS_CFLAGS="$GCC_WARNINGS $XLIBS_CFLAGS"
-fi
-
+XLIBS_CFLAGS="$CWARNFLAGS $XLIBS_CFLAGS"
 AC_SUBST(XLIBS_CFLAGS)
 AC_SUBST(XLIBS_LIBS)
 
@@ -86,5 +86,7 @@ AC_TYPE_PID_T
 # Checks for library functions.
  
 AC_CHECK_FUNCS([memset strdup])
+
+XORG_CHANGELOG
 
 AC_OUTPUT([Makefile doc/Makefile xrestop.spec])
