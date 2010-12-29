@@ -1,9 +1,9 @@
-#                                               -*- Autoconf -*-
-# Process this file with autoconf to produce a configure script.
 
-AC_PREREQ(2.53)
-AC_INIT([xrestop], 0.4, [mallum@handhelds.org])
-AC_CONFIG_SRCDIR([xrestop.c])
+# Initialize Autoconf
+AC_PREREQ([2.60])
+AC_INIT([xrestop], [0.0.4],
+        [https://bugs.freedesktop.org/enter_bug.cgi?product=xorg], [xrestop])
+AC_CONFIG_HEADERS([config.h])
 
 AM_INIT_AUTOMAKE()
 AM_MAINTAINER_MODE
@@ -11,7 +11,6 @@ AM_MAINTAINER_MODE
 m4_ifndef([XORG_MACROS_VERSION], [AC_FATAL([must install xorg-macros 1.2 or later before running autoconf/autogen])])
 XORG_MACROS_VERSION(1.2)
 XORG_CWARNFLAGS
-AM_CONFIG_HEADER([config.h])
 
 # Checks for programs.
 AC_PROG_CC
