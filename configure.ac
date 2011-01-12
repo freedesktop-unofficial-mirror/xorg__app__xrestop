@@ -15,7 +15,6 @@ XORG_MACROS_VERSION(1.8)
 XORG_CWARNFLAGS
 
 # Checks for programs.
-AC_PROG_CC
 
 XRES_LIBS=	
 
